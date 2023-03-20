@@ -1,13 +1,13 @@
 const express = require("express")
 const app = express()
+const db = require("./database")
 
-app.use(express.json())
-app.use(express.urlencoded({extended: false}))
+app.set("view-engine", "ejs")
 
-app.listen(5000, () => {
-    console.log("is now listening on 5000");
+app.get("/", (req,res) => {
+    res.render("view.ejs")
 })
 
-app.get("/", (req, res) => {
-    res.render("start.ejs")
+app.listen(5000, () => {
+    db.init()
 })
