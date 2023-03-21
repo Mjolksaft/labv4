@@ -26,8 +26,18 @@ const getUser = (name) => {
     })
 }
 
+const register = (role ,name, password) => {
+    db.serialize(() => {
+        db.run("INSERT INTO Users(role,name,password) VALUES (?,?,?)", [role, name, password], (err) => {
+            if(err) return console.error(err.message)
+        })
+    })
+}
+
+
 module.exports = {
     init,
     getUsers,
-    getUser
+    getUser,
+    register
 }
