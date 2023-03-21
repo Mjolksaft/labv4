@@ -17,18 +17,17 @@ app.get("/", async (req,res) => {
 })
 
 var currentKey = ""
-var currentPassword = ""
 var dbEncryption
+var userInfo
 
 app.get("/identify", (req,res) => {
     res.render("identify.ejs")
 })
 
 app.post("/identify", async (req,res) => {
-    var userInfo
         await db.getUser(req.body.username)
         .then(result => {
-            userInfo = result
+            userInfo = result[0]
             var count = Object.keys(result).length
             if (count == 0) {
                 res.render("fail.ejs")
@@ -42,10 +41,9 @@ app.post("/identify", async (req,res) => {
                 if (await bcrypt.compare(req.body.password, dbEncryption)){
                     res.redirect("/start")
                     // sign a jwt token 
-                    // console.log(userInfo);
-                    const token = jwt.sign({"userInfo": { "username": userInfo[0].name, "role": userInfo[0].role}}, process.env.TOKEN)
+                    const token = jwt.sign({"userInfo": { "username": userInfo.name, "role": userInfo.role}}, process.env.TOKEN)
                     currentKey = token
-                    console.log(token);
+                    // console.log(token);
                 } else {
                     res.render("fail.ejs")
                 }   
@@ -71,49 +69,44 @@ app.post("/register", async (req,res) => {
     }
 })
 
-app.get("/admin", authenticateToken, async(req,res) => {
+function HasRole(validRole) {
+    return function(req, res, next) {
+        if(userInfo.role !== validRole) res.sendStatus(401);
+        else next();
+    }
+}
+
+app.get("/admin", [authenticateToken, HasRole("admin")], async(req,res) => {
     await db.getUsers()
     .then((users) => {
         res.render("admin.ejs", {users})
     })
 })
 
-function HasRole(validRole) {
-    return function(req, res, next) {
-        console.log(validRole, decrypted.userInfo.role);
-        if(decrypted.userInfo.role !== validRole) res.redirect("/identify");
-        else next();
-    }
-}
-
-app.get("/start", HasRole("admin"), (req,res) => {
+app.get("/start", [authenticateToken], (req,res) => {
     res.render("start.ejs")
 })
 
-app.get("/student1", (req,res) => {
+app.get("/student1", [authenticateToken, HasRole("student")], (req,res) => {
     res.render("student1.ejs")
 })
 
-app.get("/student2", (req,res) => {
+app.get("/student2",[authenticateToken, HasRole("student")], (req,res) => {
     res.render("student2.ejs")
 })
 
-app.get("/teacher", (req,res) => {
+app.get("/teacher",[authenticateToken, HasRole("teacher")], (req,res) => {
     res.render("teacher.ejs")
 })
 
 function authenticateToken(req,res,next){
     console.log("we are in the authentication controll function");
     if(currentKey == "") {
-        res.redirect("/identify")
-        console.log("authentication failed");
+        res.sendStatus(401)
     } else if(jwt.verify(currentKey, process.env.TOKEN)) {
-        const decrypted = jwt.verify(currentKey, process.env.TOKEN)
-        // if(decrypted.userInfo.role == validRole)
         next()
     } else {
-        console.log("authentication failed");
-        res.redirect("/identify")
+        res.sendStatus(401)
     }
 }
 app.listen(5000, () => {
