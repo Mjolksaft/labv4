@@ -17,7 +17,17 @@ const getUsers = () => {
     })
 }
 
+const getUser = (name) => {
+    return new Promise((res,rej) => {
+        db.all("SELECT * FROM Users WHERE name = ?", [name], (err, rows) => {
+            if(err) rej(err)
+            res(rows)
+        })
+    })
+}
+
 module.exports = {
     init,
-    getUsers
+    getUsers,
+    getUser
 }
