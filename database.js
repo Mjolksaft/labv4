@@ -5,7 +5,6 @@ const init = () => {
     db.serialize(() => {
         db.run("CREATE TABLE IF NOT EXISTS Users(userID INTEGER NOT NULL, role, name, password, PRIMARY KEY(userID))") // primary key already unique  
         // db.run("INSERT INTO Users(role,name,password) VALUES('admin', 'admin', 'admin'), ('user1', 'student', 'password'), ('user2', 'student', 'password2'), ('teacher', 'teacher', 'password3')")
-
     })
 }
 const getUsers = () => {

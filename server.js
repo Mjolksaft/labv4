@@ -71,7 +71,7 @@ app.post("/register", async (req,res) => {
 
 function HasRole(validRole) {
     return function(req, res, next) {
-        if(userInfo.role !== validRole) res.sendStatus(401);
+        if(userInfo.role !== validRole) res.redirect("/identify");
         else next();
     }
 }
@@ -92,7 +92,7 @@ app.get("/student1", [authenticateToken, HasRole("student")], (req,res) => {
 })
 
 app.get("/student2",[authenticateToken, HasRole("student")], (req,res) => {
-    res.render("student2.ejs")
+    res.render("student2.ejs", {userInfo})
 })
 
 app.get("/teacher",[authenticateToken, HasRole("teacher")], (req,res) => {
@@ -100,7 +100,6 @@ app.get("/teacher",[authenticateToken, HasRole("teacher")], (req,res) => {
 })
 
 function authenticateToken(req,res,next){
-    console.log("we are in the authentication controll function");
     if(currentKey == "") {
         res.sendStatus(401)
     } else if(jwt.verify(currentKey, process.env.TOKEN)) {

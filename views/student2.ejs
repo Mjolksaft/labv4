@@ -5,6 +5,23 @@
 </head>
 <body>
 	<h1>Student2 Home Page</h1>
-	<p>Welcome, <%= user.name %>!</p>
+	<table>
+		<thead>
+			<tr>
+				<th>User ID</th>
+				<th>Name</th>
+				<th>Role</th>
+				<th>Password</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td><%= userInfo.userID %></td>
+				<td><%= userInfo.name %></td>
+				<td><%= userInfo.role %></td>
+				<td><%= userInfo.password %></td>
+			</tr>
+		</tbody>
+	</table>
 </body>
 </html>
